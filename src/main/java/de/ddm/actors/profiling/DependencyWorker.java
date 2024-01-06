@@ -48,6 +48,10 @@ public class DependencyWorker extends AbstractBehavior<DependencyWorker.Message>
 
 	public static final String DEFAULT_NAME = "dependencyWorker";
 
+	public static class ShutdownMessage implements Message {
+		private static final long serialVersionUID = 7516129288777469221L;
+	}
+
 	public static Behavior<Message> create() {
 		return Behaviors.setup(DependencyWorker::new);
 	}
@@ -75,8 +79,12 @@ public class DependencyWorker extends AbstractBehavior<DependencyWorker.Message>
 	public Receive<Message> createReceive() {
 		return newReceiveBuilder()
 				.onMessage(ReceptionistListingMessage.class, this::handle)
-				.onMessage(TaskMessage.class, this::handle)
+				.onMessage(TaskMessage.class, this::handle).onMessage(ShutdownMessage.class, this::handle)
 				.build();
+	}
+
+	private Behavior<Message> handle(ShutdownMessage message) {
+		return Behaviors.stopped();
 	}
 
 	private Behavior<Message> handle(ReceptionistListingMessage message) {

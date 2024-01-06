@@ -76,6 +76,10 @@ public class DependencyMiner extends AbstractBehavior<DependencyMiner.Message> {
 	// Actor Construction //
 	////////////////////////
 
+	public static class ShutdownMessage implements Message {
+		private static final long serialVersionUID = 7516129288777469221L;
+	}
+
 	public static final String DEFAULT_NAME = "dependencyMiner";
 
 	public static final ServiceKey<DependencyMiner.Message> dependencyMinerService = ServiceKey.create(DependencyMiner.Message.class, DEFAULT_NAME + "Service");
@@ -130,9 +134,13 @@ public class DependencyMiner extends AbstractBehavior<DependencyMiner.Message> {
 				.onMessage(RegistrationMessage.class, this::handle)
 				.onMessage(CompletionMessage.class, this::handle)
 				.onSignal(Terminated.class, this::handle)
+				.onMessage(ShutdownMessage.class, this::handle)
 				.build();
 	}
 
+	private Behavior<Message> handle(ShutdownMessage message){
+		return Behaviors.stopped();
+	}
 	private Behavior<Message> handle(StartMessage message) {
 		for (ActorRef<InputReader.Message> inputReader : this.inputReaders)
 			inputReader.tell(new InputReader.ReadHeaderMessage(this.getContext().getSelf()));
